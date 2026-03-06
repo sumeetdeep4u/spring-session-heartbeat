@@ -1,12 +1,10 @@
 package com.example.demo;
 
-import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
 
 @Controller
 public class PageController {
@@ -36,11 +34,5 @@ public class PageController {
     public String logout(HttpSession session) {
         session.invalidate();
         return "redirect:/login";
-    }
-
-    @RequestMapping(value = "/.well-known/appspecific/com.chrome.devtools.json", method = RequestMethod.GET)
-    @ResponseBody
-    public void chromeDevTools(HttpServletResponse response) {
-        response.setStatus(HttpServletResponse.SC_NOT_FOUND);
     }
 }

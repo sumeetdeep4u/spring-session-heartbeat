@@ -14,7 +14,7 @@
 
         <script>
             const HEARTBEAT_INTERVAL = 15000; // 15 seconds (session timeout is 1 minute, 4x margin)
-
+            let heartbeatTimer;
             function sendHeartbeat() {
                 fetch('${pageContext.request.contextPath}/heartbeat', { credentials: 'include' })
                     .then(resp => {
