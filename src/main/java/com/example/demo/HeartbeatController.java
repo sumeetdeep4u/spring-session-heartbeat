@@ -14,14 +14,17 @@ public class HeartbeatController {
     @RequestMapping(value = "/heartbeat", method = RequestMethod.GET)
     @ResponseBody
     public void heartbeat(HttpSession session) {
-        // Just accessing session keeps it alive
+
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
+
+        long minutesLoggedIn = (System.currentTimeMillis() - session.getCreationTime()) / (1000 * 60);
+
         System.out.printf(
-            "[%s] [HEARTBEAT] Session %s touched, maxInactive=%ds, user=%s%n",
-            LocalDateTime.now().format(formatter),
-            session.getId(),
-            session.getMaxInactiveInterval(),
-            session.getAttribute("username")
-        );
+                "[%s] [HEARTBEAT] Session %s touched, maxInactive=%ds, user=%s, User logged in since %d min%n",
+                LocalDateTime.now().format(formatter),
+                session.getId(),
+                session.getMaxInactiveInterval(),
+                session.getAttribute("username"),
+                minutesLoggedIn);
     }
 }
