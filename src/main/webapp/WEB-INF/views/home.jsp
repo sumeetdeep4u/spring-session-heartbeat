@@ -13,13 +13,31 @@
         <a href="${pageContext.request.contextPath}/logout"><button>Logout</button></a>
 
         <script>
-            const HEARTBEAT_INTERVAL = 15000; // 15 seconds (session timeout is 1 minute, 4x margin)
-            let heartbeatTimer;
+            const HEARTBEAT_INTERVAL = 15000;    // 15 seconds
+            const IDLE_TIMEOUT = 10 * 60 * 1000; // 10 minutes
+
+            let lastActivityTime = Date.now();
+            let idleLogged = false;
+
+            function resetActivity() {
+                if (idleLogged) {
+                    idleLogged = false;
+                    console.log('User active again, resuming heartbeat - ' + new Date().toLocaleString());
+                }
+                lastActivityTime = Date.now();
+            }
+
             function sendHeartbeat() {
+                if (Date.now() - lastActivityTime > IDLE_TIMEOUT) {
+                    if (!idleLogged) {
+                        idleLogged = true;
+                        console.log('User idle for 10+ min, heartbeat paused - ' + new Date().toLocaleString());
+                    }
+                    return;
+                }
                 fetch('${pageContext.request.contextPath}/heartbeat', { credentials: 'include' })
                     .then(resp => {
                         if (resp.status === 401) {
-                            // Session expired on the server — redirect to login
                             console.log('Session expired, redirecting to login');
                             window.location.href = '${pageContext.request.contextPath}/login';
                         } else {
@@ -29,9 +47,19 @@
                     .catch(err => console.warn('Heartbeat failed:', err));
             }
 
-            // Send immediately on load, then every HEARTBEAT_INTERVAL regardless of tab visibility
+            // Reset idle timer on any user interaction
+            ['mousemove', 'mousedown', 'keydown', 'touchstart', 'scroll', 'click'].forEach(evt =>
+                document.addEventListener(evt, resetActivity, { passive: true })
+            );
+
+            // Treat returning to a visible tab as activity
+            document.addEventListener('visibilitychange', () => {
+                if (document.visibilityState === 'visible') resetActivity();
+            });
+
+            // Send immediately on load, then on every interval (skipped when idle)
             sendHeartbeat();
-            heartbeatTimer = setInterval(sendHeartbeat, HEARTBEAT_INTERVAL);
+            setInterval(sendHeartbeat, HEARTBEAT_INTERVAL);
         </script>
     </body>
 

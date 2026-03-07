@@ -1,6 +1,8 @@
 package com.example.demo;
 
 import javax.servlet.http.HttpSession;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -34,5 +36,11 @@ public class PageController {
     public String logout(HttpSession session) {
         session.invalidate();
         return "redirect:/login";
+    }
+
+    @RequestMapping(value = "/.well-known/appspecific/com.chrome.devtools.json", method = RequestMethod.GET)
+    public void chromeDevToolsProbe(HttpServletResponse response) throws IOException {
+        // Chrome probes this path for local debugging metadata; no app action needed.
+        response.setStatus(HttpServletResponse.SC_NO_CONTENT);
     }
 }
