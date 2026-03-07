@@ -20,7 +20,10 @@
                     .then(resp => {
                         if (resp.status === 401) {
                             // Session expired on the server — redirect to login
+                            console.log('Session expired, redirecting to login');
                             window.location.href = '${pageContext.request.contextPath}/login';
+                        } else {
+                            console.log('Heartbeat successful - ' + new Date().toLocaleString());
                         }
                     })
                     .catch(err => console.warn('Heartbeat failed:', err));
